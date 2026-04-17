@@ -6,7 +6,8 @@
     // Group by package
     $grouped = [];
     foreach ($files as $file) {
-        preg_match('/vendor\/([^\/]+\/[^\/]+)\/guidelines/', $file, $matches);
+        // Extract package name: vendor/org/package-name
+        preg_match('/vendor\/([^\/]+\/[^\/]+)/', $file, $matches);
         $package = $matches[1] ?? 'unknown';
         $grouped[$package][] = $file;
     }
@@ -17,7 +18,7 @@
     # {{ $package }} Guidelines
 
     @foreach ($files as $file)
-        {!! file_get_contents($file) !!}
+        {!! trim(file_get_contents($file)) !!}
 
     @endforeach
 
