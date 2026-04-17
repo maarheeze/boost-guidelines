@@ -13,7 +13,7 @@
     ksort($grouped);
 @endphp
 
-@forelse ($grouped as $package => $files)
+@foreach ($grouped as $package => $files)
     # {{ $package }} Guidelines
 
     @foreach ($files as $file)
@@ -21,4 +21,4 @@
 
     @endforeach
 
-@endforelse
+@endforeach
