@@ -20,10 +20,6 @@ class BoostGuidelinesServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../resources/boost/guidelines' => $this->app->resourcePath('boost/guidelines'),
-        ], 'laravel-assets');
-
-        $this->publishes([
             __DIR__ . '/../config/boost-guidelines.php' => $this->app->configPath('boost-guidelines.php'),
         ], 'boost-guidelines-config');
     }
