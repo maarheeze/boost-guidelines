@@ -53,7 +53,7 @@ This package solves that by scanning all installed vendor packages for guideline
 ## Installation
 
 ```bash
-composer require maarheeze/boost-guidelines
+composer require maarheeze/boost-guidelines --dev
 php artisan boost:install
 php artisan boost:update --discover
 ```
