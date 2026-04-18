@@ -1,6 +1,6 @@
 {
   "name": "maarheeze/boost-guidelines",
-  "description": "Boost integration for .ai guidelines",
+  "description": "laravel boost integration for .ai guidelines",
   "type": "library",
   "license": "MIT",
   "require": {
