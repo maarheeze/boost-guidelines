@@ -1,14 +1,30 @@
 # Boost Guidelines
 
-A [Laravel Boost](https://github.com/laravel/boost) plugin that auto-discovers AI guidelines from installed Composer packages and merges them into your Boost context.
+Laravel Boost loads AI context from your application's own files. But when you install a Composer package, any guidelines that package ships for AI agents don't appear automatically — you'd have to copy them by hand.
 
-## Adding Guidelines
+This plugin solves that. It scans all installed vendor packages for guideline files and merges them into your Boost context automatically.
 
-Any Composer package can provide AI guidelines — this includes regular packages, but also dedicated guideline-only repositories.
+## Why `.ai/guidelines/`
 
-### In an existing package
+Laravel Boost's built-in path for third-party guidelines is `resources/boost/guidelines/` — a Boost-specific convention. This plugin adds support for `.ai/guidelines/`, a tool-agnostic path that many AI tools (Claude Code, Cursor, and others) already understand.
 
-Place Markdown files in `.ai/guidelines/` at the root of your package:
+By using `.ai/guidelines/`, package authors write their AI guidelines once in a neutral location — and those guidelines work across all supporting tools, not just Boost.
+
+## For Application Developers
+
+Install once:
+
+```bash
+composer require maarheeze/boost-guidelines --dev
+php artisan boost:install
+php artisan boost:update --discover
+```
+
+Any installed package that ships `.ai/guidelines/*.md` files will now be discovered automatically and merged into your Boost context. No further configuration required.
+
+## For Package Authors
+
+Add a `.ai/guidelines/` directory at the root of your package:
 
 ```
 your-package/
@@ -17,9 +33,11 @@ your-package/
     └── usage.md
 ```
 
-### As a dedicated guidelines repository
+Write plain Markdown — describe conventions, gotchas, required patterns, or anything an AI agent should know when working with your package. Any application with this plugin installed will pick these up automatically.
 
-You can create a Composer package that contains nothing but guideline files. This is useful for sharing organisation-wide conventions, team standards, or project-specific context across multiple applications:
+## For Teams: Shared Guidelines Repository
+
+You can create a Composer package that contains nothing but guideline files, and require it as a dev dependency in every project that should inherit those guidelines:
 
 ```
 your-org/guidelines/
@@ -29,23 +47,15 @@ your-org/guidelines/
     └── git.md
 ```
 
-Require it as a dev dependency in any project that should inherit those guidelines:
-
 ```bash
 composer require your-org/guidelines --dev
 ```
 
-The guideline files are plain Markdown. Write them as instructions for an AI agent — describe conventions, gotchas, required patterns, or anything an agent should know when working in the project.
-
-## The Problem
-
-Laravel Boost loads AI context from `resources/boost/` in your application. But when you install a package, any guidelines that package author wrote for AI agents are not automatically surfaced — you'd have to manually copy them.
-
-This package solves that by scanning all installed vendor packages for guideline files and automatically including them in your Boost context.
+This is the cleanest way to share organisation-wide conventions, team standards, or cross-project context — version-controlled and distributed through Composer like any other dependency.
 
 ## How It Works
 
-1. Packages provide Markdown guideline files in a well-known path (e.g. `.ai/guidelines/*.md`)
+1. Packages provide Markdown guideline files in a well-known path (`.ai/guidelines/*.md`)
 2. This plugin scans all installed vendor packages for matching files
 3. The discovered guidelines are grouped by package and rendered into your Boost context
 4. Your AI agent (Claude Code, Cursor, etc.) reads them automatically via Boost
