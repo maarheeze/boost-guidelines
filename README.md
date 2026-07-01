@@ -1,6 +1,6 @@
 # Boost Guidelines
 
-Laravel Boost loads AI context from your application's own files. But when you install a Composer package, any guidelines that package ships for AI agents don't appear automatically — you'd have to copy them by hand.
+[Laravel Boost](https://github.com/laravel/boost) loads AI context from your application's own files. But when you install a Composer package, any guidelines that package ships for AI agents don't appear automatically — you'd have to copy them by hand.
 
 This plugin solves that. It scans all installed vendor packages for guideline files and merges them into your Boost context automatically.
 
