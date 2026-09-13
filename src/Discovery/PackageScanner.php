@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Maarheeze\BoostGuidelines\Discovery;
 
+use function array_values;
 use function explode;
 use function glob;
 use function sprintf;
 use function strlen;
 use function substr;
 
-class PackageScanner
+readonly class PackageScanner
 {
     /**
      * @param array<string> $paths
      */
     public function __construct(
-        private readonly string $vendorPath,
-        private readonly array $paths,
+        private string $vendorPath,
+        private array $paths,
     ) {
     }
 
@@ -30,11 +31,15 @@ class PackageScanner
 
         foreach ($this->paths as $path) {
             foreach ($this->scanPath($path) as $file) {
-                $files[] = $file;
+                $files[$file] = $file;
+            }
+
+            foreach ($this->scanPath(sprintf('%s/always', $path)) as $file) {
+                $files[$file] = $file;
             }
         }
 
-        return $this->groupByPackage($files);
+        return $this->groupByPackage(array_values($files));
     }
 
     /**

@@ -17,10 +17,7 @@ class PackageScannerTest extends FilesystemTestCase
         $this->createFile($tempDir, 'org/package-a/.ai/guidelines/general.md');
         $this->createFile($tempDir, 'org/package-b/.ai/guidelines/general.md');
 
-        $result = (new PackageScanner(
-            vendorPath: $tempDir,
-            paths: ['.ai/guidelines'],
-        ))->scan();
+        $result = new PackageScanner($tempDir, ['.ai/guidelines'])->scan();
 
         $this->deleteDirectory($tempDir);
 
@@ -32,10 +29,7 @@ class PackageScannerTest extends FilesystemTestCase
     {
         $tempDir = $this->createTempDir();
 
-        $result = (new PackageScanner(
-            vendorPath: $tempDir,
-            paths: ['.ai/guidelines'],
-        ))->scan();
+        $result = new PackageScanner($tempDir, ['.ai/guidelines'])->scan();
 
         $this->deleteDirectory($tempDir);
 
@@ -47,10 +41,7 @@ class PackageScannerTest extends FilesystemTestCase
         $tempDir = $this->createTempDir();
         $this->createFile($tempDir, 'org/package-a/.ai/guidelines/general.md');
 
-        $result = (new PackageScanner(
-            vendorPath: $tempDir,
-            paths: ['.ai/guidelines'],
-        ))->scan();
+        $result = new PackageScanner($tempDir, ['.ai/guidelines'])->scan();
 
         $this->deleteDirectory($tempDir);
 
@@ -64,16 +55,28 @@ class PackageScannerTest extends FilesystemTestCase
     {
         $tempDir = $this->createTempDir();
         $this->createFile($tempDir, 'org/package-a/.ai/guidelines/general.md');
-        $this->createFile($tempDir, 'org/package-b/resources/boost/guidelines/general.md');
+        $this->createFile($tempDir, 'org/package-b/docs/ai/general.md');
 
-        $result = (new PackageScanner(
-            vendorPath: $tempDir,
-            paths: ['.ai/guidelines', 'resources/boost/guidelines'],
-        ))->scan();
+        $result = new PackageScanner($tempDir, ['.ai/guidelines', 'docs/ai'])->scan();
 
         $this->deleteDirectory($tempDir);
 
         $this->assertArrayHasKey('org/package-a', $result);
         $this->assertArrayHasKey('org/package-b', $result);
+    }
+
+    public function testScanIncludesFilesInAlwaysSubDirectory(): void
+    {
+        $tempDir = $this->createTempDir();
+        $this->createFile($tempDir, 'org/package-a/.ai/guidelines/always/critical.md');
+
+        $result = new PackageScanner($tempDir, ['.ai/guidelines'])->scan();
+
+        $this->deleteDirectory($tempDir);
+
+        $this->assertContains(
+            sprintf('%s/org/package-a/.ai/guidelines/always/critical.md', $tempDir),
+            $result['org/package-a'],
+        );
     }
 }

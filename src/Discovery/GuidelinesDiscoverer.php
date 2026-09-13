@@ -7,16 +7,16 @@ namespace Maarheeze\BoostGuidelines\Discovery;
 use function in_array;
 use function ksort;
 
-class GuidelinesDiscoverer
+readonly class GuidelinesDiscoverer
 {
     /**
      * @param array<string> $only
      * @param array<string> $except
      */
     public function __construct(
-        private readonly PackageScanner $scanner,
-        private readonly array $only,
-        private readonly array $except,
+        private PackageScanner $scanner,
+        private array $only,
+        private array $except,
     ) {
     }
 

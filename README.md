@@ -29,11 +29,38 @@ Add a `.ai/guidelines/` directory at the root of your package:
 ```
 your-package/
 └── .ai/guidelines/
+    ├── always/
+    │   └── critical.md
+    ├── index.md
     ├── general.md
     └── usage.md
 ```
 
-Write plain Markdown — describe conventions, gotchas, required patterns, or anything an AI agent should know when working with your package. Any application with this plugin installed will pick these up automatically.
+Write plain Markdown — describe conventions, gotchas, required patterns, or anything an AI agent should know when working with your package.
+
+By default your guidelines are delivered as an *index* rather than inlined into every session, so the agent reads a file at the moment it is about to touch a matching path. Three things decide how each file is delivered:
+
+### `always/`
+
+Files in an `always/` sub-directory are inlined verbatim into the agent's context, in every session. Reserve this for the handful of rules that must be present before the agent does anything at all.
+
+### The globs line
+
+Any other file declares the paths it applies to with a globs line in its header:
+
+```markdown
+# Filament
+
+**Globs:** `app/Filament/**`, `resources/views/filament/**`
+```
+
+The file is then listed as a single row in the index, and the agent opens it when it is about to work on a matching path.
+
+### `index.md`
+
+If your guidelines directory contains an `index.md`, the plugin emits one pointer to that file and nothing else from your package, apart from `always/` files, which are always inlined — you own the mapping, and it is your responsibility to keep the index complete.
+
+A file with no globs line, in a package with no `index.md`, cannot be pulled on demand, so it is inlined in full under its package heading, below the index.
 
 ## For Teams: Shared Guidelines Repository
 
@@ -57,8 +84,8 @@ This is the cleanest way to share organisation-wide conventions, team standards,
 
 1. Packages provide Markdown guideline files in a well-known path (`.ai/guidelines/*.md`)
 2. This plugin scans all installed vendor packages for matching files
-3. The discovered guidelines are grouped by package and rendered into your Boost context
-4. Your AI agent (Claude Code, Cursor, etc.) reads them automatically via Boost
+3. The discovered guidelines are rendered into your Boost context — `always/` files verbatim, everything else as an index of globs and file paths
+4. Your AI agent (Claude Code, Cursor, etc.) reads the index automatically via Boost, and opens the file it points to when it is about to touch a matching path
 
 ## Installation
 
@@ -81,9 +108,10 @@ After publishing, edit `config/boost-guidelines.php`:
 ```php
 return [
 
+    'mode' => 'index',
+
     'paths' => [
         '.ai/guidelines',
-        'resources/boost',
     ],
 
     'only' => [
@@ -97,16 +125,29 @@ return [
 ];
 ```
 
+### `mode`
+
+How guidelines are delivered.
+
+- `index` (default) — only `always/` files are inlined. Everything else becomes an index the agent reads on demand. Typically fifteen lines of context instead of several hundred.
+- `inline` — every discovered file is rendered in full, in every session. The previous behaviour.
+
+```php
+'mode' => 'index',
+```
+
 ### `paths`
 
-A list of sub-paths within each vendor package to scan for Markdown guideline files. All `*.md` files found inside a matching directory are included.
+A list of sub-paths within each vendor package to scan for Markdown guideline files. All `*.md` files found inside a matching directory are included, along with any in an `always/` sub-directory beneath it.
 
-You can add multiple paths to support packages that use different conventions:
+A file counts as an always file when the directory holding it is named `always`, wherever that directory sits. Pointing an entry here at a path whose own last segment is `always` therefore inlines every file it contains verbatim into every session.
+
+Boost discovers `resources/boost/guidelines/` in installed packages on its own, so that path does not belong here. Add entries only for conventions Boost does not know about:
 
 ```php
 'paths' => [
     '.ai/guidelines',
-    'resources/boost',
+    'docs/ai',
 ],
 ```
 
@@ -139,10 +180,32 @@ Given these installed packages:
 vendor/
 ├── maarheeze/guidelines/
 │   └── .ai/guidelines/
+│       ├── always/
+│       │   └── critical.md
 │       └── php.md
 └── acme/helpers/
     └── .ai/guidelines/
         └── laravel.md
 ```
 
-Both `php.md` and `laravel.md` are discovered and merged into your Boost context, grouped under their respective package name.
+Where `php.md` declares a globs line of `app/**` and `laravel.md` declares none, the generated block is:
+
+```markdown
+# maarheeze/guidelines Guidelines
+
+<contents of always/critical.md>
+
+# Guidelines from installed packages
+
+Read these when you are about to touch a matching path — before creating or editing the file, not after.
+
+| Globs | File |
+|---|---|
+| `app/**` | vendor/maarheeze/guidelines/.ai/guidelines/php.md |
+
+These files ship no glob metadata, so they are included in full:
+
+# acme/helpers Guidelines
+
+<contents of laravel.md>
+```

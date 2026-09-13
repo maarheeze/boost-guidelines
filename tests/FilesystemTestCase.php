@@ -27,7 +27,7 @@ abstract class FilesystemTestCase extends TestCase
         return $path;
     }
 
-    protected function createFile(string $tempDir, string $relativePath): void
+    protected function createFile(string $tempDir, string $relativePath, string $contents = ''): void
     {
         $absolutePath = sprintf('%s/%s', $tempDir, $relativePath);
         $directory = dirname($absolutePath);
@@ -36,7 +36,7 @@ abstract class FilesystemTestCase extends TestCase
             mkdir($directory, 0777, true);
         }
 
-        file_put_contents($absolutePath, '');
+        file_put_contents($absolutePath, $contents);
     }
 
     protected function deleteDirectory(string $path): void

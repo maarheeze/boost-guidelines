@@ -22,11 +22,7 @@ class GuidelinesDiscovererTest extends TestCase
                 'org/package-b' => ['/vendor/org/package-b/.ai/guidelines/general.md'],
             ]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: [],
-            except: [],
-        ))->discover();
+        $result = new GuidelinesDiscoverer($scanner, [], [])->discover();
 
         $this->assertArrayHasKey('org/package-a', $result);
         $this->assertArrayHasKey('org/package-b', $result);
@@ -39,11 +35,7 @@ class GuidelinesDiscovererTest extends TestCase
             ->method('scan')
             ->willReturn([]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: [],
-            except: [],
-        ))->discover();
+        $result = new GuidelinesDiscoverer($scanner, [], [])->discover();
 
         $this->assertSame([], $result);
     }
@@ -59,11 +51,7 @@ class GuidelinesDiscovererTest extends TestCase
                 'org/middle' => ['/vendor/org/middle/.ai/guidelines/general.md'],
             ]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: [],
-            except: [],
-        ))->discover();
+        $result = new GuidelinesDiscoverer($scanner, [], [])->discover();
 
         $this->assertSame(['org/alpha', 'org/middle', 'org/zebra'], array_keys($result));
     }
@@ -78,11 +66,7 @@ class GuidelinesDiscovererTest extends TestCase
                 'org/package-b' => ['/vendor/org/package-b/.ai/guidelines/general.md'],
             ]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: ['org/package-a'],
-            except: [],
-        ))->discover();
+        $result = new GuidelinesDiscoverer($scanner, ['org/package-a'], [])->discover();
 
         $this->assertArrayHasKey('org/package-a', $result);
         $this->assertArrayNotHasKey('org/package-b', $result);
@@ -98,11 +82,7 @@ class GuidelinesDiscovererTest extends TestCase
                 'org/package-b' => ['/vendor/org/package-b/.ai/guidelines/general.md'],
             ]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: [],
-            except: ['org/package-b'],
-        ))->discover();
+        $result = new GuidelinesDiscoverer($scanner, [], ['org/package-b'])->discover();
 
         $this->assertArrayHasKey('org/package-a', $result);
         $this->assertArrayNotHasKey('org/package-b', $result);
@@ -117,11 +97,11 @@ class GuidelinesDiscovererTest extends TestCase
                 'org/package-a' => ['/vendor/org/package-a/.ai/guidelines/general.md'],
             ]);
 
-        $result = (new GuidelinesDiscoverer(
-            scanner: $scanner,
-            only: ['org/package-a'],
-            except: ['org/package-a'],
-        ))->discover();
+        $result = new GuidelinesDiscoverer(
+            $scanner,
+            ['org/package-a'],
+            ['org/package-a'],
+        )->discover();
 
         $this->assertArrayNotHasKey('org/package-a', $result);
     }
